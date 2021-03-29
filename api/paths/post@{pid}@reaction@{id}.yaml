@@ -1,0 +1,18 @@
+parameters:
+  - $ref: ../components/parameters/postId.yaml
+  - name: id
+    description: post reaction id
+    in: path
+    required: true
+    schema:
+      type: string
+delete:
+  security: []
+  summary: "# Delete reaction by id"
+  responses:
+    '200':
+      description: Success
+      content:
+        application/json:
+          schema:
+            type: boolean

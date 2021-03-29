@@ -1,76 +1,118 @@
-openapi: 3.0.2
+openapi: 3.0.0
 info:
-  description: 'An OpenAPI specification example for Building API services: A Beginners
-    Guide document.'
-  title: Sample OpenAPI Specification
-  version: 0.0.1
+  title: Kms Backend
+  version: 1.0.0
 servers:
-- description: Example API Service
-  url: http://localhost:8080/
-paths:
-  /users/{user_id}:
-    get:
-      description: Gets a user
-      operationId: get_user
-      parameters:
-      - description: ID of a user
-        explode: false
-        in: path
-        name: user_id
-        required: true
-        schema:
-          type: string
-        style: simple
-      responses:
-        "200":
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/User'
-          description: User found
-        default:
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorMessage'
-          description: Unexpected error
-      x-openapi-router-controller: openapi_server.controllers.default_controller
+- url: /
+paths: {}
 components:
   schemas:
-    User:
-      example:
-        name: name
-        display_name: display_name
-        email: email
+    Post:
       properties:
-        name:
+        author:
+          description: Author of the post.
           readOnly: true
-          title: name
-          type: string
-        display_name:
-          maxLength: 20
+          type: AVUser
+          x-object-index: default
+          x-object-queryable: true
+        rootPost:
+          description: Root post if this post is a re-post, otherwise set to `null`
+          readOnly: true
+          type: Post
+          x-object-index: default
+          x-object-queryable: true
+        parentPost:
+          description: Parent post if this post is a re-post, otherwise set to `null`
+          readOnly: true
+          type: Post
+          x-object-index: default
+          x-object-queryable: true
+        title:
+          description: Required, title of the post.
+          maxLength: 30
           minLength: 1
-          title: display_name
+          readOnly: true
           type: string
-        email:
-          format: email
-          title: email
+        content:
+          description: Content of the post.
+          maxLength: 300
+          minLength: 0
+          readOnly: true
           type: string
+        countThumbup:
+          description: count number of thumbup in PostReaction.
+          minimum: 0
+          readOnly: true
+          type: integer
+        countComment:
+          minimum: 0
+          readOnly: true
+          type: integer
+        countRepost:
+          minimum: 0
+          readOnly: true
+          type: integer
+        repliedAt:
+          description: Latest replied time (include comment and re-post)
+          format: date
+          readOnly: true
+          type: string
+          x-object-index: default
+        development:
+          description: Differentiate the posts version, true is beta.
+          readOnly: true
+          type: boolean
+          x-object-index: default
       required:
-      - display_name
-      - email
-      title: User
+      - author
+      - content
+      - title
       type: object
-    ErrorMessage:
+    Comment:
       properties:
-        error_code:
-          title: error_code
-          type: string
-        error_message:
-          title: error_message
+        post:
+          description: The post comment is replied to.
+          readOnly: true
+          type: Post
+          x-object-index: default
+          x-object-queryable: true
+        author:
+          description: Author of the comment.
+          readOnly: true
+          type: AVUser
+        parentComment:
+          description: Parent comment if this comment is replied to comment, otherwise
+            set to `null`
+          type: Comment
+        content:
+          description: Content of the comment.
+          minLength: 1
           type: string
       required:
-      - error_code
-      - error_message
-      title: ErrorMessage
+      - author
+      - content
+      - post
       type: object
+    PostReaction:
+      properties:
+        post:
+          readOnly: true
+          type: Post
+          x-object-index: default
+          x-object-queryable: true
+        author:
+          readOnly: true
+          type: AVUser
+        emoji:
+          description: Reaction of the post.
+          enum:
+          - thumbup
+          type: string
+      required:
+      - author
+      - emoji
+      - post
+      type: object
+      x-object-cross-unique-index:
+      - post
+      - author

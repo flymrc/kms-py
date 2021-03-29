@@ -26,7 +26,22 @@ def set_properties(project):
 def say_hello():
     logger.info("Hello, PyBuilder\n")
 
+
 @task
-def build_openapi():
+def buildOpenApi():
     import subprocess
-    subprocess.check_output('openapi-generator generate -i openapi.yaml -g python-flask -o openapi_server/', shell=True)
+
+    subprocess.check_output(
+        "openapi-generator generate -i openapi_server/kms-leancloud.yaml -g python-flask -o openapi_server/",
+        shell=True,
+    )
+
+
+@task
+def buildOpenApiYaml():
+    import subprocess
+
+    subprocess.check_output(
+        "npx swagger-cli bundle api/openapi.yaml --outfile api/openapi-dist.yaml --type yaml",
+        shell=True,
+    )
